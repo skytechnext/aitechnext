@@ -8,6 +8,7 @@ Website for **AITechNext** — the AI consultancy & implementation arm of [TechN
 |---|---|---|
 | `index.html` | Internal (leadership) | **Business Plan Dossier v1.0** — one long scrollable page with a collapsible sidebar: executive summary, market analysis, 17-category / 142-service catalog, flagship practices (AI × Odoo, AI × Sales & Marketing), delivery methodology, competitive landscape, 12 business models & billing strategies, GTM, org chart, governance, roadmap, KPIs, and risk register. |
 | `clientfacing/index.html` | Public (prospects) | Client-facing marketing site — "We help companies become AI-native": the problem, the five partner roles, services, AI × Odoo flagship, operating assumptions, proof blueprints, process, and FAQ. |
+| `ops/index.html` | Internal (Manager & CAIO) | **Ops Playbook** — the 10-factor implementation decision matrix with an interactive scorer, the ten priority services scored and detailed (incl. the AI-adoption interview guide & checklist), suggested build sequence, and the weekly/monthly decision cadence. |
 
 ## Notes
 

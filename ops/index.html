@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AITechNext operations playbook — the implementation decision matrix and the ten priority services, for the Delivery Manager and CAIO.">
+<title>AITechNext Ops Playbook</title>
+<style>
+/* ================================================================
+   AITECHNEXT OPS PLAYBOOK — same design family as the dossier:
+   drafting-paper ground, ledger emerald, copper signal,
+   serif display / sans body / mono labels. Single-column tool page.
+   ================================================================ */
+:root{
+  --paper:#F5F7F6; --paper-deep:#ECF0EE; --card:#FFFFFF;
+  --ink:#15201C; --ink-soft:#3E4D48; --ink-mute:#66756F;
+  --hairline:#D9E1DD; --hairline-soft:#E6ECE9;
+  --em:#0B6B53; --em-bright:#0E8A6A; --em-wash:#E3EFEA; --em-wash2:#D2E6DE;
+  --copper:#B4531B; --copper-wash:#F6E8DD;
+  --panel:#0F1F1B; --panel-2:#16302A; --panel-ink:#EDF3F0; --panel-mute:#9DB4AC; --panel-line:#2A443C;
+  --good:#DBEEE2; --good-ink:#175E38; --warn:#F8ECD4; --warn-ink:#7A5410; --bad:#F9E2DA; --bad-ink:#8C3418;
+  --serif:Georgia,'Iowan Old Style','Palatino Linotype','Book Antiqua',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Menlo,Consolas,monospace;
+  --shadow-soft:0 1px 2px rgba(21,32,28,.05);
+  --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16.5px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--em-wash2)}
+a{color:var(--em);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--em-bright);outline-offset:2px;border-radius:3px}
+img,svg{max-width:100%;height:auto}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+select{font:inherit}
+.wrap{max-width:1060px;margin:0 auto;padding:0 32px}
+section{scroll-margin-top:82px}
+
+/* sticky top nav */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(15,31,27,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--panel-line)}
+.topnav .wrap{display:flex;align-items:center;gap:18px;height:60px}
+.tn-brand{display:flex;align-items:center;gap:9px;color:var(--panel-ink);font-family:var(--serif);font-size:18px;white-space:nowrap}
+.tn-brand:hover{text-decoration:none}
+.tn-links{display:flex;gap:16px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.tn-links::-webkit-scrollbar{display:none}
+.tn-links a{color:var(--panel-mute);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;padding:6px 2px}
+.tn-links a:hover{color:var(--panel-ink);text-decoration:none}
+
+/* hero */
+.hero{background:var(--panel);color:var(--panel-ink);padding:118px 0 56px}
+.hero-kicker{display:inline-flex;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--em-bright);border:1px solid var(--panel-line);border-radius:999px;padding:7px 14px;background:rgba(14,138,106,.08)}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,4.8vw,52px);line-height:1.1;letter-spacing:-.01em;margin:22px 0 14px;max-width:22ch;text-wrap:balance}
+.hero .lede{font-size:17.5px;line-height:1.65;color:var(--panel-mute);max-width:62ch}
+.hero .lede b{color:var(--panel-ink)}
+
+/* sections */
+.sec{padding:64px 0 26px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:14px}
+.sec-num{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--em);white-space:nowrap}
+.sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(25px,3vw,34px);line-height:1.14;letter-spacing:-.01em;text-wrap:balance}
+.sec-lede{font-size:17px;line-height:1.65;color:var(--ink-soft);max-width:70ch;margin:8px 0 8px}
+.sec-lede b{color:var(--ink)}
+h3.sub{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.25;margin:38px 0 10px}
+.prose{max-width:70ch}
+.prose p{margin:0 0 13px;color:var(--ink-soft)}
+.prose p b,.prose li b{color:var(--ink)}
+.prose ul,.prose ol{margin:0 0 14px;padding-left:22px;color:var(--ink-soft)}
+.prose li{margin:5px 0}
+.mini-note{font-size:13px;color:var(--ink-mute);border-left:3px solid var(--hairline);padding:2px 0 2px 12px;margin:14px 0;max-width:70ch}
+
+/* tables */
+.twrap{overflow-x:auto;margin:18px 0;border:1px solid var(--hairline);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow-soft)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:660px}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);padding:13px 14px 3px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);text-align:left;padding:10px 12px;border-bottom:2px solid var(--ink);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--hairline-soft);vertical-align:top;color:var(--ink-soft);line-height:1.5}
+td b{color:var(--ink)}
+tr:last-child td{border-bottom:none}
+td.num,th.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;border-radius:999px;padding:3px 10px;white-space:nowrap;border:1px solid transparent}
+.pill.g{background:var(--good);color:var(--good-ink)}
+.pill.y{background:var(--warn);color:var(--warn-ink)}
+.pill.r{background:var(--bad);color:var(--bad-ink)}
+.pill.n{background:var(--paper-deep);color:var(--ink-soft);border-color:var(--hairline)}
+
+/* cards / rows */
+.grid{display:grid;gap:13px;margin:18px 0}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r);padding:17px 17px 15px;box-shadow:var(--shadow-soft)}
+.card h4{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.35}
+.card p{font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--em);margin-bottom:7px}
+.callout{border:1px solid var(--em-wash2);background:var(--em-wash);border-radius:var(--r);padding:16px 18px;margin:20px 0}
+.callout .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--em);margin-bottom:7px}
+.callout p{font-size:14.5px;color:var(--ink);line-height:1.6}
+.callout.cu{background:var(--copper-wash);border-color:#EAD3C0}
+.callout.cu .k{color:var(--copper)}
+.rows{margin:16px 0;border:1px solid var(--hairline);border-radius:12px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-soft)}
+.row{display:grid;grid-template-columns:180px 1fr;gap:14px;padding:13px 18px;border-top:1px solid var(--hairline-soft)}
+.row:first-child{border-top:none}
+.row .rk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--em);padding-top:2px}
+.row .rv{font-size:14px;color:var(--ink-soft);line-height:1.6}
+.row .rv b{color:var(--ink)}
+
+/* figures */
+figure.fig{margin:24px 0;border:1px solid var(--hairline);border-radius:12px;background:var(--card);padding:20px 20px 14px;box-shadow:var(--shadow-soft);overflow-x:auto}
+figure.fig svg{display:block;margin:0 auto;max-width:100%;height:auto}
+figcaption{margin-top:12px;padding-top:10px;border-top:1px solid var(--hairline-soft);font-size:12.5px;color:var(--ink-mute);line-height:1.6}
+figcaption b{color:var(--ink-soft)}
+.fig-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--em);margin-bottom:12px}
+
+/* ---- scorer tool ---- */
+.scorer{border:1px solid var(--em);border-radius:14px;background:var(--card);box-shadow:0 0 0 1px var(--em),0 8px 28px rgba(21,32,28,.08);margin:22px 0;overflow:hidden}
+.scorer-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 20px;background:var(--em-wash);border-bottom:1px solid var(--em-wash2)}
+.scorer-head .t{font-family:var(--serif);font-size:19px;font-weight:700}
+.scorer-head .hint{font-size:12.5px;color:var(--ink-mute)}
+.scorer-body{padding:8px 20px 6px}
+.s-row{display:grid;grid-template-columns:minmax(150px,220px) 1fr 88px 56px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--hairline-soft)}
+.s-row:first-child{border-top:none}
+.s-name{font-size:13.5px;font-weight:600;line-height:1.3}
+.s-name span{display:block;font-weight:400;font-size:11px;color:var(--ink-mute)}
+.s-anchors{font-size:11px;color:var(--ink-mute);line-height:1.45}
+.s-sel select{width:100%;padding:7px 8px;border:1px solid var(--hairline);border-radius:8px;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px}
+.s-w{font-family:var(--mono);font-size:11px;color:var(--ink-mute);text-align:right}
+.scorer-foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:16px 20px;border-top:2px solid var(--ink);background:var(--paper)}
+.s-total{font-family:var(--serif);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.s-total span{font-size:15px;color:var(--ink-mute);font-family:var(--sans)}
+.s-verdict{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:7px 14px}
+.s-verdict.v-commit{background:var(--good);color:var(--good-ink)}
+.s-verdict.v-pilot{background:var(--warn);color:var(--warn-ink)}
+.s-verdict.v-backlog{background:var(--paper-deep);color:var(--ink-soft);border:1px solid var(--hairline)}
+.s-verdict.v-decline{background:var(--bad);color:var(--bad-ink)}
+.s-gate{font-size:12.5px;color:var(--bad-ink);background:var(--bad);border-radius:8px;padding:7px 12px;display:none}
+.s-gate.show{display:block}
+.s-loaded{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--hairline);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 13px;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;box-shadow:var(--shadow-soft)}
+.btn:hover{border-color:var(--em);color:var(--em)}
+.btn.load{padding:4px 10px;font-size:10px}
+
+/* checklist */
+.check{list-style:none;margin:10px 0 18px;padding:0;max-width:74ch}
+.check li{position:relative;padding:8px 0 8px 30px;border-top:1px solid var(--hairline-soft);font-size:14px;color:var(--ink-soft);line-height:1.55}
+.check li::before{content:"";position:absolute;left:2px;top:13px;width:14px;height:14px;border:1.6px solid var(--em);border-radius:4px;background:var(--card)}
+.check li b{color:var(--ink)}
+.check .grp{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--em);padding:16px 0 6px;border-top:none}
+.check .grp::before{display:none}
+
+/* priority cards */
+.prio{border:1px solid var(--hairline);border-radius:13px;background:var(--card);box-shadow:var(--shadow-soft);margin:14px 0;padding:20px 22px}
+.prio-head{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:baseline;margin-bottom:8px}
+.prio-num{font-family:var(--mono);font-size:12px;color:var(--em);border:1px solid var(--em-wash2);background:var(--em-wash);border-radius:8px;padding:5px 9px;white-space:nowrap}
+.prio-head h3{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.2}
+.prio-tags{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.prio p.desc{font-size:14.5px;color:var(--ink-soft);line-height:1.65;max-width:76ch}
+.prio p.desc b{color:var(--ink)}
+.prio-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--hairline-soft)}
+.pm{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+.pm .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-mute);display:block;margin-bottom:3px}
+.pm b{color:var(--ink)}
+
+/* footer */
+.footer{background:var(--panel);color:var(--panel-mute);margin-top:70px}
+.footer .wrap{padding:36px 32px 32px}
+.footer .f-name{font-family:var(--serif);font-size:20px;color:var(--panel-ink)}
+.footer p{font-size:13px;line-height:1.7;max-width:70ch;margin-top:8px}
+.footer .legal{margin-top:18px;padding-top:14px;border-top:1px solid var(--panel-line);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;line-height:2}
+
+/* responsive */
+@media (max-width:900px){
+  .g3{grid-template-columns:1fr 1fr}
+  .prio-meta{grid-template-columns:1fr 1fr}
+  .s-row{grid-template-columns:1fr 88px 48px;grid-template-rows:auto auto}
+  .s-anchors{grid-column:1/-1;grid-row:2}
+}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .wrap{padding:0 18px}
+  .footer .wrap{padding:30px 18px 26px}
+  .sec{padding:48px 0 18px}
+  .sec-head{flex-direction:column;gap:5px}
+  .g2,.g3{grid-template-columns:1fr}
+  .prio-meta{grid-template-columns:1fr 1fr}
+  .row{grid-template-columns:1fr;gap:4px;padding:12px 15px}
+  figure.fig{padding:13px 13px 10px}
+  .prio{padding:16px 15px}
+  .prio-tags{margin-left:0}
+  .scorer-body{padding:6px 14px 4px}
+  .scorer-head,.scorer-foot{padding:13px 14px}
+  .s-total{font-size:28px}
+}
+@media print{
+  .topnav{display:none}
+  body{background:#fff;font-size:12px}
+  .hero,.footer{background:#0F1F1B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec{padding:30px 0 10px;break-inside:avoid-page}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Page sections">
+  <div class="wrap">
+    <a class="tn-brand" href="../">
+      <svg width="24" height="24" viewBox="0 0 30 30" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="27" height="27" rx="7" fill="none" stroke="#0E8A6A" stroke-width="2"/>
+        <circle cx="10" cy="19.5" r="2.6" fill="#0E8A6A"/>
+        <circle cx="15" cy="10.5" r="2.6" fill="#EDF3F0"/>
+        <circle cx="20" cy="19.5" r="2.6" fill="#0E8A6A"/>
+        <path d="M11 17.5 14 12.5M16 12.5 19 17.5" fill="none" stroke="#EDF3F0" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span>Ops Playbook</span>
+    </a>
+    <div class="tn-links">
+      <a href="#matrix">Matrix</a>
+      <a href="#scorer">Scorer</a>
+      <a href="#scored">Scored priorities</a>
+      <a href="#ten">The ten</a>
+      <a href="#sequence">Sequence</a>
+      <a href="#cadence">Cadence</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="hero-kicker">Internal · Delivery Manager &amp; CAIO · August 2026</span>
+    <h1>How we decide what to build — and the ten things we're building first.</h1>
+    <p class="lede">The working page for the two people who run implementation. One shared scoring language for every candidate project — <b>internal or client</b> — a live scorer to apply it in minutes, and the current priority stack with owners, scopes, and first milestones. Companion to the <a href="../" style="color:#0E8A6A">business plan dossier</a>.</p>
+  </div>
+</header>
+<!-- ============ 01 DECISION MATRIX ============ -->
+<section class="sec" id="matrix">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">§ 01</span><h2>The Implementation Decision Matrix</h2></div>
+    <p class="sec-lede">Every candidate build — client project, internal tool, or product idea — gets scored on the same ten factors before anyone writes code. The matrix doesn't make the decision; it forces the argument into the open and makes "no" cheap to say early.</p>
+
+    <div class="twrap"><table>
+      <caption>The ten factors — scored 1–5, higher is always better</caption>
+      <thead><tr><th>#</th><th>Factor</th><th>The question it answers</th><th>1 looks like</th><th>5 looks like</th><th class="num">Weight</th><th>Scored by</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td><b>Biz feasibility (client)</b></td><td>Will the client's business realistically absorb, pay for, and sustain this?</td><td>No budget owner, no sponsor, vague payer</td><td>Named sponsor, approved budget, urgency</td><td class="num">12</td><td>Manager</td></tr>
+        <tr><td class="num">2</td><td><b>Biz feasibility (internal)</b></td><td>Does this make commercial sense for us — margin, repeatability, strategic fit?</td><td>One-off, thin margin, off-strategy</td><td>Repeatable, healthy margin, feeds a flagship</td><td class="num">10</td><td>Manager</td></tr>
+        <tr><td class="num">3</td><td><b>Impact</b></td><td>How much does this move the needle — hours, revenue, errors, risk — if it works?</td><td>Nice-to-have; nobody would miss it</td><td>P&amp;L-visible or removes a critical bottleneck</td><td class="num">15</td><td>Both</td></tr>
+        <tr><td class="num">4</td><td><b>Effort</b> <span class="pill n">inverted</span></td><td>How small is the build? (5 = days–weeks, 1 = months of engineering)</td><td>Multi-month, multi-system, novel R&amp;D</td><td>Composable from existing patterns in ≤2 weeks</td><td class="num">12</td><td>CAIO</td></tr>
+        <tr><td class="num">5</td><td><b>Future</b></td><td>Does this compound — reusable IP, pack material, platform for later builds?</td><td>Dead-end custom work, throwaway</td><td>Becomes library IP / unlocks the roadmap</td><td class="num">10</td><td>CAIO</td></tr>
+        <tr><td class="num">6</td><td><b>Workflow fit</b></td><td>Does it slot into how the work already flows (Odoo, existing channels, SOPs)?</td><td>Requires people to change tools &amp; habits</td><td>Lands inside systems people already open daily</td><td class="num">10</td><td>Both</td></tr>
+        <tr><td class="num">7</td><td><b>Team readiness</b></td><td>Do we (and the client's team) have the skills and bandwidth to build and run it now?</td><td>New stack for us, no client-side owner</td><td>Known stack, free capacity, trained client owner</td><td class="num">8</td><td>Manager</td></tr>
+        <tr><td class="num">8</td><td><b>Alternatives</b></td><td>Is building justified versus buying or configuring something off the shelf?</td><td>A good SaaS does 90% of this for $50/mo</td><td>No credible alternative; context is the product</td><td class="num">8</td><td>CAIO</td></tr>
+        <tr><td class="num">9</td><td><b>Complaints</b></td><td>How loud is the pain today — tickets, escalations, overtime, people asking for it?</td><td>Nobody has ever complained about this</td><td>Weekly complaints; people built workarounds</td><td class="num">10</td><td>Manager</td></tr>
+        <tr><td class="num">10</td><td><b>Legal</b> <span class="pill r">gate</span></td><td>How clean is the privacy / compliance / contractual exposure?</td><td>PDPA-sensitive data, unclear consent, IP risk</td><td>No personal data, clear ownership, low stakes</td><td class="num">5</td><td>CAIO</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Verdicts and hard gates</h3>
+    <div class="grid g2">
+      <div class="card"><div class="k">Verdict bands (weighted score, 1–5)</div>
+        <p><span class="pill g">≥ 4.0 · Commit</span> — schedule it into a pod this or next sprint.<br>
+        <span class="pill y">3.2–3.9 · Pilot</span> — scope down to the smallest valuable slice, time-box it, re-score after.<br>
+        <span class="pill n">2.4–3.1 · Backlog</span> — park with a written trigger that would change the score.<br>
+        <span class="pill r">&lt; 2.4 · Decline</span> — say no now, kindly and in writing.</p>
+      </div>
+      <div class="card"><div class="k">Gates that override the score</div>
+        <p><b>Legal ≤ 2 → hold</b>, whatever the total; route through the governance board (dossier §16) first.<br>
+        <b>Team readiness = 1 → enablement first</b>: the project becomes a training item until readiness ≥ 3.<br>
+        <b>No named owner → no build.</b> A score without a sponsor on each side is a wish, not a decision.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="k">How to use it, practically</div>
+      <p>Manager and CAIO score independently (10 minutes each), then compare. <b>Any factor where you differ by ≥2 points is the conversation</b> — the matrix's real job is surfacing that gap. Record the final row in the decision log (§06); revisit Backlog items monthly and Pilots at their time-box.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 SCORER ============ -->
+<section class="sec" id="scorer">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">§ 02</span><h2>Live Scorer</h2></div>
+    <p class="sec-lede">Score any candidate in two minutes. Pick 1–5 per factor; the weighted verdict updates as you go. The "load" buttons in §03 pre-fill it with any of the ten priorities so you can challenge the defaults.</p>
+
+    <div class="scorer" id="scorerTool">
+      <div class="scorer-head">
+        <span class="t">Implementation scorer</span>
+        <span class="hint">1 = weak · 5 = strong (Effort &amp; Alternatives are already inverted — 5 is always the good end)</span>
+        <button class="btn" id="sReset" style="margin-left:auto">Reset</button>
+      </div>
+      <div class="scorer-body" id="sBody"><noscript><p style="padding:12px 0;color:var(--ink-mute)">The interactive scorer needs JavaScript — the factor table in §01 works standalone.</p></noscript></div>
+      <div class="scorer-foot">
+        <div><div class="s-total"><span id="sTotal">3.00</span><span> / 5.00 weighted</span></div></div>
+        <div class="s-verdict v-backlog" id="sVerdict">Backlog</div>
+        <div class="s-gate" id="sGate"></div>
+        <div class="s-loaded" id="sLoaded">scoring: blank candidate</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ 03 SCORED PRIORITIES ============ -->
+<section class="sec" id="scored">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">&sect; 03</span><h2>The Priority Stack, Scored</h2></div>
+    <p class="sec-lede">The ten priority services for internal use and clients, run through the matrix. Scores are the CEO's opening position &mdash; Manager and CAIO should re-score independently and argue the &ge;2-point gaps. Hit <b>Load</b> to pull any row into the scorer above and test your disagreement.</p>
+
+    <div class="twrap"><table>
+      <caption>Priorities P1&ndash;P10 &times; ten factors (hover column headers for full names) &middot; weights: 12/10/15/12/10/10/8/8/10/5</caption>
+      <thead><tr><th>Candidate</th><th class="num" title="Biz feasibility (client)">FC</th><th class="num" title="Biz feasibility (internal)">FI</th><th class="num" title="Impact">IM</th><th class="num" title="Effort (inverted)">EF</th><th class="num" title="Future">FU</th><th class="num" title="Workflow fit">WF</th><th class="num" title="Team readiness">TR</th><th class="num" title="Alternatives">AL</th><th class="num" title="Complaints">CO</th><th class="num" title="Legal">LG</th><th class="num">Weighted</th><th>Verdict</th><th></th></tr></thead>
+      <tbody>
+<tr><td><b>P1</b> · AI Strategy &amp; Advisory</td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">5</td><td class="num"><b>4.47</b></td><td><span class="pill g">Commit</span></td><td><button class="btn load s-load" data-name="AI Strategy & Advisory" data-s="5,5,4,4,5,5,4,4,4,5">Load</button></td></tr>
+<tr><td><b>P2</b> · Data Foundations &amp; RAG</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num"><b>3.88</b></td><td><span class="pill y">Pilot</span></td><td><button class="btn load s-load" data-name="Data Foundations & RAG" data-s="4,4,4,3,5,4,4,4,3,4">Load</button></td></tr>
+<tr><td><b>P3</b> · Claude Cowork / Code tutoring</td><td class="num">4</td><td class="num">5</td><td class="num">4</td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">5</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num"><b>4.35</b></td><td><span class="pill g">Commit</span></td><td><button class="btn load s-load" data-name="Claude Cowork / Code tutoring" data-s="4,5,4,5,5,4,5,4,3,5">Load</button></td></tr>
+<tr><td><b>P4</b> · Skill library, plugins &amp; harness</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">5</td><td class="num">3</td><td class="num">5</td><td class="num"><b>4.11</b></td><td><span class="pill g">Commit</span></td><td><button class="btn load s-load" data-name="Skill library, plugins & harness" data-s="3,5,4,4,5,4,4,5,3,5">Load</button></td></tr>
+<tr><td><b>P5</b> · Developmental basics (IT setup)</td><td class="num">3</td><td class="num">5</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">5</td><td class="num">5</td><td class="num">3</td><td class="num">4</td><td class="num">5</td><td class="num"><b>4.10</b></td><td><span class="pill g">Commit</span></td><td><button class="btn load s-load" data-name="Developmental basics (IT setup)" data-s="3,5,3,5,4,5,5,3,4,5">Load</button></td></tr>
+<tr><td><b>P6</b> · QA/QC workflow harness</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num"><b>3.91</b></td><td><span class="pill y">Pilot</span></td><td><button class="btn load s-load" data-name="QA/QC workflow harness" data-s="3,5,4,3,5,4,4,4,3,5">Load</button></td></tr>
+<tr><td><b>P7</b> · Sales proposal generation tool</td><td class="num">4</td><td class="num">5</td><td class="num">5</td><td class="num">3</td><td class="num">4</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num"><b>4.23</b></td><td><span class="pill g">Commit</span></td><td><button class="btn load s-load" data-name="Sales proposal generation tool" data-s="4,5,5,3,4,5,4,4,4,4">Load</button></td></tr>
+<tr><td><b>P8</b> · Sales chatbots</td><td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num"><b>3.62</b></td><td><span class="pill y">Pilot</span></td><td><button class="btn load s-load" data-name="Sales chatbots" data-s="4,3,4,3,4,4,3,3,4,4">Load</button></td></tr>
+<tr><td><b>P9</b> · Hermes Agent</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">2</td><td class="num">5</td><td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num"><b>3.46</b></td><td><span class="pill y">Pilot</span></td><td><button class="btn load s-load" data-name="Hermes Agent" data-s="3,4,4,2,5,3,3,4,3,4">Load</button></td></tr>
+<tr><td><b>P10</b> · HR pipeline (CV → Odoo HR)</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">3</td><td class="num">3</td><td class="num"><b>3.50</b></td><td><span class="pill y">Pilot</span></td><td><button class="btn load s-load" data-name="HR pipeline (CV → Odoo HR)" data-s="4,4,3,3,4,4,4,3,3,3">Load</button></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="mini-note">Reading the spread: the internal-enablement items (P3&ndash;P6) score high on Effort and Readiness because they compound everything else and need no client dependency; P8&ndash;P10 land in Pilot territory &mdash; right to build, but as time-boxed slices, not programs. P9's Effort score is the one most likely to move once the CAIO fixes its scope.</div>
+  </div>
+</section>
+<!-- ============ 04 THE TEN ============ -->
+<section class="sec" id="ten">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">§ 04</span><h2>The Ten Priorities, In Detail</h2></div>
+    <p class="sec-lede">Each card is the working brief: what it is, who owns it, the first milestone that proves it, and the number it will be judged by. Internal deployments come first wherever possible — we are client zero for everything we sell.</p>
+
+    <!-- P1 -->
+    <div class="prio" id="p1">
+      <div class="prio-head"><span class="prio-num">P1</span><h3>AI Strategy &amp; Advisory — assessments &amp; audits</h3>
+        <div class="prio-tags"><span class="pill n">Client + internal</span><span class="pill g">Commit · 4.47</span></div></div>
+      <p class="desc">The front door of the firm: a productized <b>AI &amp; Automation Adoption Assessment</b> built on a structured leadership interview and a scored checklist (both below, v1), producing a gap report and a sequenced <b>AI strategy &amp; roadmap</b>. Run it on ourselves and the parent company first — those two reports become the sales samples.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>CAIO</b> (method) · Manager (delivery)</div>
+        <div class="pm"><span class="k">First milestone</span>Kit v1 field-tested on 2 parent-base clients</div>
+        <div class="pm"><span class="k">Components</span>Interview guide · adoption checklist · gap report template · roadmap template</div>
+        <div class="pm"><span class="k">Judged by</span>Assessment → build conversion ≥ 70%</div>
+      </div>
+
+      <h3 class="sub" style="font-size:17px">The leadership interview — 12 questions (v1)</h3>
+      <div class="prose"><ol>
+        <li><b>Where does the business lose the most hours to repetitive work</b> — and who exactly is losing them?</li>
+        <li>Which decisions wait on information that is slow or painful to assemble?</li>
+        <li>What do people re-type from one system into another, and how often?</li>
+        <li>Which three questions do customers ask most, and how long do they wait for answers?</li>
+        <li>What does the owner still personally check, approve, or chase every week?</li>
+        <li>Which AI tools are already in use — officially, and unofficially on personal accounts?</li>
+        <li>What has been tried with AI so far, and what happened to it afterwards?</li>
+        <li>If your most experienced person resigned tomorrow, what knowledge leaves with them?</li>
+        <li>Where does revenue leak — quotes unfollowed, enquiries gone cold, renewals missed?</li>
+        <li>What systems do you pay for that nobody fully uses — and why did adoption stall?</li>
+        <li>What would you automate first if it were guaranteed to work, and what has stopped you?</li>
+        <li>How will we both know, in 90 days, that this engagement worked? <i>(The answer becomes the baseline.)</i></li>
+      </ol></div>
+
+      <h3 class="sub" style="font-size:17px">The adoption checklist — 24 checks, scored (v1)</h3>
+      <p class="desc" style="margin-bottom:4px">One point per "yes". <b>0–8 = Ad-hoc</b> (start with foundations) · <b>9–16 = Emerging</b> (systematize the wins) · <b>17–24 = Operational</b> (scale and govern). The band, not the number, drives the roadmap's first quarter.</p>
+      <ul class="check">
+        <li class="grp">Leadership &amp; strategy</li>
+        <li>A named executive owns the AI agenda (not "everyone" — someone).</li>
+        <li>A written list of AI use cases exists, ranked by value.</li>
+        <li>AI spend is a budget line, not hidden inside personal expense claims.</li>
+        <li>Leadership has used an AI tool hands-on in the last 30 days.</li>
+        <li>There is a stated position on what AI must never be used for here.</li>
+        <li class="grp">Data &amp; systems</li>
+        <li>One system of record for customers/orders exists and is trusted.</li>
+        <li>Core SOPs are written down somewhere findable (not only in heads).</li>
+        <li>Key systems expose APIs or exports that the team can actually access.</li>
+        <li>Customer/product records are reasonably deduplicated.</li>
+        <li>Someone can produce last month's key numbers without manual assembly.</li>
+        <li>Files live in shared, permissioned storage — not personal desktops.</li>
+        <li class="grp">People &amp; usage</li>
+        <li>More than half the team has used an AI tool for work this month.</li>
+        <li>At least one person per department is a recognized go-to for AI help.</li>
+        <li>Prompt patterns or templates are shared, not reinvented per person.</li>
+        <li>Any AI output that reaches customers gets a human review step.</li>
+        <li>Someone has been trained (formally, at all) on AI tooling this year.</li>
+        <li>New-hire onboarding mentions the tools the team actually uses.</li>
+        <li class="grp">Governance &amp; hygiene</li>
+        <li>An acceptable-use rule exists: what data may enter which tools.</li>
+        <li>Company accounts (not personal) are used for AI tools handling work data.</li>
+        <li>Access to systems is revoked promptly when someone leaves.</li>
+        <li>Passwords live in a manager, not spreadsheets or chat threads.</li>
+        <li>Customer consent posture is known for the data AI would touch.</li>
+        <li>At least one automation, if any exist, is monitored — not fire-and-forget.</li>
+        <li>Someone would notice within a day if an automation silently failed.</li>
+      </ul>
+    </div>
+
+    <!-- P2 -->
+    <div class="prio" id="p2">
+      <div class="prio-head"><span class="prio-num">P2</span><h3>Data Foundations — strategy, architecture &amp; RAG</h3>
+        <div class="prio-tags"><span class="pill n">Client + internal</span><span class="pill y">Pilot · 3.88</span></div></div>
+      <p class="desc">The engineering follow-on that P1 assessments will keep prescribing: <b>data strategy &amp; architecture</b> right-sized for SMEs (dossier §05·02), and <b>RAG systems</b> as the first production AI most clients should own — grounded, cited answers over their documents and records. Internal deployment: our own delivery knowledge base becomes the reference build.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>CAIO</b> + data engineer</div>
+        <div class="pm"><span class="k">First milestone</span>Internal RAG over delivery docs, cited, evaluated</div>
+        <div class="pm"><span class="k">Components</span>Architecture blueprint · ingestion pipeline · pgvector store · eval set</div>
+        <div class="pm"><span class="k">Judged by</span>Retrieval quality ≥ agreed eval bar; 2 client deployments</div>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="prio" id="p3">
+      <div class="prio-head"><span class="prio-num">P3</span><h3>Claude Cowork / Claude Code — tutoring &amp; workshops</h3>
+        <div class="prio-tags"><span class="pill n">Internal first → client</span><span class="pill g">Commit · 4.35</span></div></div>
+      <p class="desc">Hands-on enablement for the tools our own team runs on: <b>Claude Code</b> for the engineers, <b>Claude Cowork</b> for non-technical operators. Internally this raises every pod's velocity; externally it becomes a paid workshop line (dossier §05·14) where attendees automate a piece of their own job before the day ends. High margin, near-zero build effort, and every cohort surfaces new automation demand.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>CAIO</b></div>
+        <div class="pm"><span class="k">First milestone</span>Internal curriculum run for all 8 engineers + parent staff</div>
+        <div class="pm"><span class="k">Components</span>Curriculum · exercise repos · cheat-sheets · certification quiz</div>
+        <div class="pm"><span class="k">Judged by</span>2 paid external cohorts inside the quarter</div>
+      </div>
+    </div>
+
+    <!-- P4 -->
+    <div class="prio" id="p4">
+      <div class="prio-head"><span class="prio-num">P4</span><h3>Company skill library, plugins &amp; harness</h3>
+        <div class="prio-tags"><span class="pill n">Internal → productized</span><span class="pill g">Commit · 4.11</span></div></div>
+      <p class="desc">Our compounding asset: a versioned library of <b>skills, plugins, and agent-harness patterns</b> that every engagement draws from and every engagement feeds — delivery checklists, Odoo connectors, eval templates, prompt patterns, proposal blocks. This is the mechanism behind the dossier's "delivery speed is a compounding asset" claim (§15); for clients it becomes the deployable starting point of their own skill library.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>CAIO</b> (curation) · all pods (contribution)</div>
+        <div class="pm"><span class="k">First milestone</span>Library repo live, 10 skills in, contribution rule enforced at QA gate</div>
+        <div class="pm"><span class="k">Components</span>Skill repo · plugin registry · harness template · review process</div>
+        <div class="pm"><span class="k">Judged by</span>% of new builds started from library ≥ 50% by Q2</div>
+      </div>
+    </div>
+
+    <!-- P5 -->
+    <div class="prio" id="p5">
+      <div class="prio-head"><span class="prio-num">P5</span><h3>Developmental basics — GitHub, password manager, IT setup</h3>
+        <div class="prio-tags"><span class="pill n">Internal + client add-on</span><span class="pill g">Commit · 4.10</span></div></div>
+      <p class="desc">The unglamorous floor everything stands on: <b>GitHub org</b> with branch protection and review rules, <b>password manager</b> with shared vaults and offboarding procedure, device baseline, 2FA everywhere, backup discipline. Done once, properly, in week one — and packaged as the "digital hygiene" add-on that P1 assessments prescribe to nearly every SME we meet.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>Manager</b> + platform engineer</div>
+        <div class="pm"><span class="k">First milestone</span>Internal setup complete; written as a repeatable runbook</div>
+        <div class="pm"><span class="k">Components</span>GitHub org policy · vault structure · device checklist · offboarding SOP</div>
+        <div class="pm"><span class="k">Judged by</span>Runbook executed at a client in ≤ 2 days</div>
+      </div>
+    </div>
+
+    <!-- P6 -->
+    <div class="prio" id="p6">
+      <div class="prio-head"><span class="prio-num">P6</span><h3>QA/QC workflow harness</h3>
+        <div class="prio-tags"><span class="pill n">Internal → embedded in every build</span><span class="pill y">Pilot · 3.91</span></div></div>
+      <p class="desc">The delivery quality machine: a standard harness that wraps every build with <b>eval suites, regression checks, review gates, and release checklists</b> — the §08 dossier gates turned into running tooling rather than discipline alone. Ships inside every client system thereafter, which is what lets us sign SLAs without heroics.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>Manager</b> (process) · CAIO (eval tech)</div>
+        <div class="pm"><span class="k">First milestone</span>Harness wrapped around 2 in-flight builds; gate refusals logged</div>
+        <div class="pm"><span class="k">Components</span>Eval runner · release checklist · defect taxonomy · QA dashboard</div>
+        <div class="pm"><span class="k">Judged by</span>Eval pass rate at acceptance = 100%, defect escape rate ↓</div>
+      </div>
+    </div>
+
+    <!-- P7 -->
+    <div class="prio" id="p7">
+      <div class="prio-head"><span class="prio-num">P7</span><h3>Sales proposal generation tool</h3>
+        <div class="prio-tags"><span class="pill n">Internal first → client product</span><span class="pill g">Commit · 4.23</span></div></div>
+      <p class="desc">Our own §07 revenue-engine play, built as a tool: feed it the lead, get back the working documents for the deal. Used on every AITechNext deal first — then offered to clients as the flagship demo of what "AI in your sales workflow" means, wired to Odoo CRM so outputs land as records, not attachments.</p>
+      <figure class="fig" style="margin:18px 0 6px">
+        <div class="fig-label">P7 — input/output contract (v1)</div>
+        <svg viewBox="0 0 920 240" role="img" aria-label="Four inputs — client contact details, company name, sales notes, meeting notes — flow into a pipeline of research, analysis and drafting, producing four outputs: company analysis, contact analysis, sales proposal, and quotation, written into Odoo CRM.">
+          <defs><marker id="arP" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="currentColor">
+            <g>
+              <rect x="20" y="30" width="200" height="180" rx="10" fill="#FFFFFF" stroke="#15201C" stroke-width="1.3"/>
+              <text x="120" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="14">Inputs</text>
+              <text x="120" y="85" text-anchor="middle" fill="#3E4D48">contact details</text>
+              <text x="120" y="110" text-anchor="middle" fill="#3E4D48">company name</text>
+              <text x="120" y="135" text-anchor="middle" fill="#3E4D48">sales notes</text>
+              <text x="120" y="160" text-anchor="middle" fill="#3E4D48">online meeting notes</text>
+              <text x="120" y="192" text-anchor="middle" fill="#66756F" font-size="10">2 minutes of seller time</text>
+            </g>
+            <g>
+              <rect x="300" y="30" width="300" height="180" rx="10" fill="#E3EFEA" stroke="#0B6B53" stroke-width="1.5"/>
+              <text x="450" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#0B6B53">Pipeline</text>
+              <text x="450" y="85" text-anchor="middle" fill="#3E4D48">company research (public sources)</text>
+              <text x="450" y="108" text-anchor="middle" fill="#3E4D48">needs extraction from notes</text>
+              <text x="450" y="131" text-anchor="middle" fill="#3E4D48">offer matching → library (P4)</text>
+              <text x="450" y="154" text-anchor="middle" fill="#3E4D48">pricing from §12 anchor rates</text>
+              <text x="450" y="182" text-anchor="middle" fill="#B4531B">human review gate before send</text>
+            </g>
+            <g>
+              <rect x="680" y="30" width="220" height="180" rx="10" fill="#0F1F1B"/>
+              <text x="790" y="55" text-anchor="middle" fill="#EDF3F0" font-family="Georgia,serif" font-size="14">Outputs → Odoo CRM</text>
+              <text x="790" y="85" text-anchor="middle" fill="#9DB4AC">company analysis</text>
+              <text x="790" y="110" text-anchor="middle" fill="#9DB4AC">contact analysis</text>
+              <text x="790" y="135" text-anchor="middle" fill="#9DB4AC">sales proposal (house template)</text>
+              <text x="790" y="160" text-anchor="middle" fill="#9DB4AC">quotation (draft SO)</text>
+              <text x="790" y="192" text-anchor="middle" fill="#0E8A6A" font-size="10">same-day turnaround</text>
+            </g>
+            <g stroke="currentColor" stroke-width="1.5" fill="none">
+              <path d="M220 120h68" marker-end="url(#arP)"/>
+              <path d="M600 120h68" marker-end="url(#arP)"/>
+            </g>
+          </g>
+        </svg>
+        <figcaption><b>Nothing leaves without the review gate.</b> The tool drafts; a human owns the send. Quotations are created as draft sales orders in Odoo so pricing floors and follow-up sequences attach automatically.</figcaption>
+      </figure>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>Pod B</b> · Manager as first user</div>
+        <div class="pm"><span class="k">First milestone</span>Used on 5 real AITechNext deals end-to-end</div>
+        <div class="pm"><span class="k">Components</span>Research agent · analysis prompts · proposal/quote templates · Odoo writer</div>
+        <div class="pm"><span class="k">Judged by</span>Proposal turnaround: days → same-day; win-rate tracked</div>
+      </div>
+    </div>
+
+    <!-- P8 -->
+    <div class="prio" id="p8">
+      <div class="prio-head"><span class="prio-num">P8</span><h3>Chatbots — sales only</h3>
+        <div class="prio-tags"><span class="pill n">Client</span><span class="pill y">Pilot · 3.62</span></div></div>
+      <p class="desc">Lead-qualification and booking bots on web and WhatsApp (dossier §05·05.5): answer product questions from approved content, qualify, and book the meeting into the calendar and CRM. <b>Scope guard, by decision:</b> no customer-support bots and no internal-staff copilots yet — support carries reputational risk we take on only behind a mature P6 harness, and internal copilots wait for P2's knowledge layer. Revisit both scopes when P6 and P2 hit their milestones.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>Pod B</b></div>
+        <div class="pm"><span class="k">First milestone</span>One paying client bot live, time-boxed 3-week build</div>
+        <div class="pm"><span class="k">Components</span>Qualification flow · booking integration · approved-content grounding · handoff</div>
+        <div class="pm"><span class="k">Judged by</span>Enquiry→meeting conversion vs client baseline</div>
+      </div>
+    </div>
+
+    <!-- P9 -->
+    <div class="prio" id="p9">
+      <div class="prio-head"><span class="prio-num">P9</span><h3>Hermes Agent</h3>
+        <div class="prio-tags"><span class="pill n">Internal · codename</span><span class="pill y">Pilot · 3.46</span></div></div>
+      <p class="desc">Internal agent program, scope owned by the CAIO. Charter below is a proposed skeleton — <b>every line is an assumption for the CAIO to confirm, cut, or replace</b> before any build starts; the matrix score (especially Effort, currently 2) should be re-run once the charter is fixed.</p>
+      <div class="rows" style="margin-top:12px">
+        <div class="row"><div class="rk">Proposed mission</div><div class="rv">The firm's internal dispatcher: watches our systems (CRM, projects, inboxes, care-plan monitors), routes what matters to the right person or agent, and chases what stalls — the connective tissue between P4's library, P6's harness, and P7's tooling.</div></div>
+        <div class="row"><div class="rk">Not in scope (proposed)</div><div class="rv">No client-facing conversations, no external sends without human approval, no writes outside systems it has scoped credentials for.</div></div>
+        <div class="row"><div class="rk">First slice (proposed)</div><div class="rv">One workflow only — e.g. deal-stall chasing or care-plan alert routing — instrumented, time-boxed to 2 weeks, judged on interruptions saved.</div></div>
+        <div class="row"><div class="rk">Decision needed</div><div class="rv"><b>CAIO to write the one-page charter and re-score P9</b> at the next weekly (§06); until then it holds Pilot status with no engineering hours attached.</div></div>
+      </div>
+    </div>
+
+    <!-- P10 -->
+    <div class="prio" id="p10">
+      <div class="prio-head"><span class="prio-num">P10</span><h3>HR pipeline — CV screening, scoring &amp; onboarding on Odoo HR</h3>
+        <div class="prio-tags"><span class="pill n">Internal + client</span><span class="pill y">Pilot · 3.50</span></div></div>
+      <p class="desc">Recruitment automation on the Odoo HR backbone (dossier §06 catalog): CVs screened and scored against the actual role rubric, shortlists with reasoning attached, and onboarding orchestration (accounts, equipment, training plan) fired from the hire record. <b>Legal is the watch-factor (scored 3):</b> candidate data under PDPA plus bias exposure — ships only with the dossier's 13.5 bias controls, human decision on every rejection, and an audit trail. Use our own pod-C hiring as the pilot.</p>
+      <div class="prio-meta">
+        <div class="pm"><span class="k">Owner</span><b>Pod A</b> · Manager as HR stakeholder</div>
+        <div class="pm"><span class="k">First milestone</span>Our own next hire run through it end-to-end</div>
+        <div class="pm"><span class="k">Components</span>Screening rubric · scoring agent · Odoo HR flows · onboarding orchestrator</div>
+        <div class="pm"><span class="k">Judged by</span>Time-to-shortlist ↓ 70%; zero unreviewed rejections</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 SEQUENCE ============ -->
+<section class="sec" id="sequence">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">§ 05</span><h2>Suggested Build Sequence</h2></div>
+    <p class="sec-lede">The numbering P1–P10 is the priority list; this is the recommended <b>order of execution</b>, driven by dependencies: internal foundations first (they raise the velocity of everything after), sell-ready assets second, production builds third. Manager and CAIO own re-sequencing as reality intervenes.</p>
+
+    <figure class="fig">
+      <div class="fig-label">Fig 5.1 — Sixteen-week execution map (indicative)</div>
+      <svg viewBox="0 0 940 430" role="img" aria-label="Timeline over sixteen weeks: wave one in weeks zero to six covers IT basics, tutoring, skill library and QA harness; wave two in weeks two to nine covers the assessment kit and proposal tool; wave three from week six onward covers RAG foundations, sales chatbots, HR pipeline and the Hermes agent.">
+        <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="currentColor">
+          <g stroke="#E6ECE9" stroke-width="1">
+            <path d="M200 20v370M385 20v370M570 20v370M755 20v370M920 20v370"/>
+          </g>
+          <g fill="#66756F" font-size="10">
+            <text x="200" y="410" text-anchor="middle">wk 0</text>
+            <text x="385" y="410" text-anchor="middle">wk 4</text>
+            <text x="570" y="410" text-anchor="middle">wk 8</text>
+            <text x="755" y="410" text-anchor="middle">wk 12</text>
+            <text x="920" y="410" text-anchor="middle">wk 16</text>
+          </g>
+          <text x="20" y="40" fill="#B4531B" font-size="10.5">WAVE 1 — FOUNDATIONS</text>
+          <g>
+            <text x="190" y="66" text-anchor="end" fill="#3E4D48">P5 IT basics</text><rect x="200" y="56" width="92" height="13" rx="4" fill="#0E8A6A"/>
+            <text x="190" y="92" text-anchor="end" fill="#3E4D48">P3 tutoring</text><rect x="200" y="82" width="185" height="13" rx="4" fill="#0E8A6A"/><text x="392" y="93" fill="#66756F" font-size="10">→ recurring cohorts</text>
+            <text x="190" y="118" text-anchor="end" fill="#3E4D48">P4 skill library</text><rect x="246" y="108" width="231" height="13" rx="4" fill="#0E8A6A"/><text x="484" y="119" fill="#66756F" font-size="10">→ standing curation</text>
+            <text x="190" y="144" text-anchor="end" fill="#3E4D48">P6 QA harness</text><rect x="292" y="134" width="185" height="13" rx="4" fill="#0E8A6A"/>
+          </g>
+          <text x="20" y="182" fill="#B4531B" font-size="10.5">WAVE 2 — SELL-READY</text>
+          <g>
+            <text x="190" y="208" text-anchor="end" fill="#3E4D48">P1 assessment kit</text><rect x="292" y="198" width="185" height="13" rx="4" fill="#0E8A6A"/>
+            <text x="190" y="234" text-anchor="end" fill="#3E4D48">P7 proposal tool</text><rect x="385" y="224" width="231" height="13" rx="4" fill="#0E8A6A"/>
+          </g>
+          <text x="20" y="272" fill="#B4531B" font-size="10.5">WAVE 3 — PRODUCTION BUILDS</text>
+          <g>
+            <text x="190" y="298" text-anchor="end" fill="#3E4D48">P2 data / RAG</text><rect x="477" y="288" width="277" height="13" rx="4" fill="#0E8A6A"/>
+            <text x="190" y="324" text-anchor="end" fill="#3E4D48">P8 sales bots</text><rect x="570" y="314" width="231" height="13" rx="4" fill="#0E8A6A"/>
+            <text x="190" y="350" text-anchor="end" fill="#3E4D48">P10 HR pipeline</text><rect x="616" y="340" width="231" height="13" rx="4" fill="#0E8A6A"/>
+            <text x="190" y="376" text-anchor="end" fill="#3E4D48">P9 Hermes</text><rect x="662" y="366" width="258" height="13" rx="4" fill="#0E8A6A"/><text x="662" y="360" fill="#B4531B" font-size="10">charter first (§04·P9)</text>
+          </g>
+        </g>
+      </svg>
+      <figcaption><b>Why this order:</b> P5/P3/P4 cost days and multiply everything downstream; P1 and P7 turn that capability into revenue motion; the wave-3 builds each depend on something earlier — P2 on data access patterns, P8 on the P6 harness, P10 on governance controls, P9 on its own charter. Bars are indicative durations, not commitments.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 06 CADENCE ============ -->
+<section class="sec" id="cadence">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">§ 06</span><h2>Operating Cadence &amp; Decision Log</h2></div>
+    <p class="sec-lede">The matrix only works if it runs on a rhythm. Thirty minutes weekly, one hour monthly — and every verdict written down, so future-us can audit past-us.</p>
+
+    <div class="grid g2">
+      <div class="card"><div class="k">Weekly · 30 min · Manager + CAIO</div><h4>Intake &amp; score</h4><p>New candidates from pipeline, pods, and complaints land here. Score independently before the meeting; argue only the ≥2-point gaps; log the verdict. Standing agenda item: any Pilot hitting its time-box gets re-scored or killed — no silent extensions.</p></div>
+      <div class="card"><div class="k">Monthly · 60 min · + CEO</div><h4>Stack review</h4><p>Walk the P1–P10 stack against milestones and KPIs; re-score anything whose facts changed; promote from Backlog only by re-score, never by enthusiasm. Output: the updated stack published back to this page.</p></div>
+    </div>
+
+    <h3 class="sub">Decision log — one row per verdict</h3>
+    <div class="twrap"><table>
+      <caption>Template (keep in the shared workspace; this page shows the format)</caption>
+      <thead><tr><th>Date</th><th>Candidate</th><th>Sponsor (client / internal)</th><th class="num">M score</th><th class="num">C score</th><th class="num">Final</th><th>Verdict</th><th>Gate notes</th><th>Revisit trigger</th></tr></thead>
+      <tbody>
+        <tr><td class="num">2026-08-20</td><td><i>example:</i> Tender-scanner for client X</td><td>X ops director / Pod A</td><td class="num">3.9</td><td class="num">3.4</td><td class="num">3.6</td><td><span class="pill y">Pilot</span></td><td>Legal 4 — public tender data only</td><td>3-wk time-box ends 2026-09-10</td></tr>
+        <tr><td class="num">—</td><td>—</td><td>—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout cu">
+      <div class="k">The two failure modes this page exists to prevent</div>
+      <p><b>Building what's exciting instead of what scores</b> — the matrix makes enthusiasm argue with evidence. And <b>the quiet yes</b> — work that starts because nobody said no. If it isn't in the decision log, it doesn't get engineering hours. No exceptions, including for the people who own this page.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="f-name">AI<b>TechNext</b> · Ops Playbook</div>
+    <p>Internal working tool for the Delivery &amp; Operations Manager and the Chief AI Officer. Companion to the <a href="../" style="color:#0E8A6A">business plan dossier</a>. Scores and sequences on this page are living defaults — the decision log is the source of truth.</p>
+    <div class="legal">Confidential — internal · © 2026 AITechNext · v1.0 · August 2026</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var FACTORS=[
+    {n:"Biz feasibility (client)",w:12,a:"1: no sponsor/budget · 5: named sponsor, approved budget"},
+    {n:"Biz feasibility (internal)",w:10,a:"1: one-off, thin margin · 5: repeatable, feeds a flagship"},
+    {n:"Impact",w:15,a:"1: nice-to-have · 5: P&L-visible outcome"},
+    {n:"Effort (inverted)",w:12,a:"1: months of R&D · 5: ≤2 weeks from known patterns"},
+    {n:"Future",w:10,a:"1: throwaway · 5: becomes library IP / unlocks roadmap"},
+    {n:"Workflow fit",w:10,a:"1: forces habit change · 5: lands in tools used daily"},
+    {n:"Team readiness",w:8,a:"1: new stack, no owner · 5: known stack, trained owner"},
+    {n:"Alternatives",w:8,a:"1: good SaaS covers 90% · 5: no credible alternative"},
+    {n:"Complaints",w:10,a:"1: nobody complains · 5: weekly pain, workarounds exist"},
+    {n:"Legal (gate)",w:5,a:"1: serious PDPA/IP exposure · 5: clean"}
+  ];
+  var body=document.getElementById("sBody");
+  if(!body)return;
+  var sels=[];
+  FACTORS.forEach(function(f,i){
+    var row=document.createElement("div");row.className="s-row";
+    var nm=document.createElement("div");nm.className="s-name";nm.textContent=f.n;
+    var sp=document.createElement("span");sp.textContent="weight "+f.w;nm.appendChild(sp);
+    var an=document.createElement("div");an.className="s-anchors";an.textContent=f.a;
+    var sw=document.createElement("div");sw.className="s-sel";
+    var sel=document.createElement("select");sel.setAttribute("aria-label",f.n+" score");
+    for(var v=1;v<=5;v++){var o=document.createElement("option");o.value=v;o.textContent=v;if(v===3)o.selected=true;sel.appendChild(o);}
+    sel.addEventListener("change",compute);
+    sw.appendChild(sel);sels.push(sel);
+    var wl=document.createElement("div");wl.className="s-w";wl.textContent="×"+(f.w/100).toFixed(2);
+    row.appendChild(nm);row.appendChild(an);row.appendChild(sw);row.appendChild(wl);
+    body.appendChild(row);
+  });
+  var totalEl=document.getElementById("sTotal"),verdictEl=document.getElementById("sVerdict"),
+      gateEl=document.getElementById("sGate"),loadedEl=document.getElementById("sLoaded");
+  function compute(){
+    var t=0;
+    FACTORS.forEach(function(f,i){t+=parseInt(sels[i].value,10)*f.w;});
+    t=t/100;
+    totalEl.textContent=t.toFixed(2);
+    var v,cls;
+    if(t>=4.0){v="Commit";cls="v-commit";}
+    else if(t>=3.2){v="Pilot";cls="v-pilot";}
+    else if(t>=2.4){v="Backlog";cls="v-backlog";}
+    else{v="Decline";cls="v-decline";}
+    var gates=[];
+    if(parseInt(sels[9].value,10)<=2)gates.push("Legal ≤ 2 → HOLD: route through governance board first");
+    if(parseInt(sels[6].value,10)===1)gates.push("Readiness = 1 → enablement before build");
+    verdictEl.textContent=gates.length&&gates[0].indexOf("HOLD")>-1?"Hold (gate)":v;
+    verdictEl.className="s-verdict "+(gates.length&&gates[0].indexOf("HOLD")>-1?"v-decline":cls);
+    gateEl.textContent=gates.join(" · ");
+    gateEl.className="s-gate"+(gates.length?" show":"");
+  }
+  document.getElementById("sReset").addEventListener("click",function(){
+    sels.forEach(function(s){s.value=3;});
+    loadedEl.textContent="scoring: blank candidate";
+    compute();
+  });
+  [].slice.call(document.querySelectorAll(".s-load")).forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var vals=btn.getAttribute("data-s").split(",");
+      vals.forEach(function(v,i){if(sels[i])sels[i].value=v;});
+      loadedEl.textContent="scoring: "+btn.getAttribute("data-name");
+      compute();
+      document.getElementById("scorerTool").scrollIntoView({behavior:"smooth",block:"center"});
+    });
+  });
+  compute();
+})();
+</script>
+</body>
+</html>
