@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AITechNext helps SMEs become AI-native — strategy, production AI systems on the Odoo backbone, and the internal capability to keep compounding.">
+<title>AITechNext</title>
+<style>
+/* ================================================================
+   AITECHNEXT — client-facing site
+   One deliberate visual world: deep evergreen dark, paper-white type,
+   emerald + copper signals. Serif display, mono eyebrows.
+   All colors explicit; holds on any host ground.
+   ================================================================ */
+:root{
+  --bg:#0A1512;
+  --bg-2:#0F1F1B;
+  --bg-3:#152A24;
+  --line:rgba(237,243,240,.13);
+  --line-soft:rgba(237,243,240,.08);
+  --ink:#EEF4F1;
+  --ink-dim:#AFC4BC;
+  --ink-mute:#7D948C;
+  --em:#31C08E;
+  --em-deep:#0E8A6A;
+  --copper:#E08148;
+  --wash:rgba(49,192,142,.09);
+  --serif:Georgia,'Iowan Old Style','Palatino Linotype','Book Antiqua',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Menlo,Consolas,monospace;
+  --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.68;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(49,192,142,.32)}
+a{color:var(--em);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--em);outline-offset:3px;border-radius:3px}
+img,svg,canvas{max-width:100%;height:auto}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--em);display:flex;align-items:center;gap:12px}
+.eyebrow::after{content:"";height:1px;flex:0 0 44px;background:var(--em);opacity:.5}
+section{scroll-margin-top:86px}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,21,18,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+.nav .wrap{display:flex;align-items:center;gap:26px;height:66px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-family:var(--serif);font-size:20px}
+.brand b{font-weight:700}
+.brand:hover{text-decoration:none}
+.nav-links{display:flex;gap:22px;margin-left:auto;align-items:center}
+.nav-links a{color:var(--ink-dim);font-size:14.5px}
+.nav-links a:hover{color:var(--ink);text-decoration:none}
+.nav-links a.cta{color:#06231A}
+.nav-links a.cta:hover{color:#06231A}
+.cta{display:inline-flex;align-items:center;gap:9px;background:var(--em);color:#06231A;font-weight:600;font-size:14.5px;
+  padding:10px 18px;border-radius:9px;white-space:nowrap}
+.cta:hover{background:#3ED09D;text-decoration:none}
+.cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+.cta.ghost:hover{border-color:var(--em);color:var(--em);background:transparent}
+.cta.big{font-size:16.5px;padding:14px 26px;border-radius:11px}
+
+/* hero */
+.hero{position:relative;padding:170px 0 96px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+#mesh{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.hero .wrap{position:relative}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(44px,7vw,84px);line-height:1.04;letter-spacing:-.015em;max-width:13ch;text-wrap:balance;margin:26px 0 26px}
+.hero h1 em{font-style:italic;color:var(--em)}
+.hero .lede{font-size:clamp(17.5px,2vw,20.5px);color:var(--ink-dim);max-width:56ch;line-height:1.65}
+.hero .lede b{color:var(--ink);font-weight:600}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+.hero-proof{display:flex;flex-wrap:wrap;gap:26px;margin-top:54px;padding-top:26px;border-top:1px solid var(--line-soft)}
+.hp{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);line-height:1.9}
+.hp b{display:block;color:var(--ink);font-size:19px;letter-spacing:0;font-family:var(--serif)}
+
+/* generic section rhythm */
+.sec{padding:104px 0}
+.sec.alt{background:var(--bg-2);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.sec h2{font-family:var(--serif);font-weight:700;font-size:clamp(32px,4.6vw,54px);line-height:1.08;letter-spacing:-.01em;max-width:20ch;text-wrap:balance;margin:22px 0 20px}
+.sec h2 em{font-style:italic;color:var(--em)}
+.sec .lede{font-size:18.5px;color:var(--ink-dim);max-width:62ch;line-height:1.7}
+.sec .lede b{color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.cards.c2{grid-template-columns:repeat(2,1fr)}
+.kard{border:1px solid var(--line);border-radius:var(--r);padding:24px 24px 22px;background:linear-gradient(180deg,rgba(237,243,240,.03),rgba(237,243,240,0))}
+.kard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--copper);margin-bottom:12px}
+.kard h3{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.3;margin-bottom:9px}
+.kard p{font-size:14.5px;color:var(--ink-dim);line-height:1.65}
+.kard p b{color:var(--ink)}
+
+/* problem list */
+.fractures{margin-top:44px;border-top:1px solid var(--line)}
+.fracture{display:grid;grid-template-columns:74px 1fr 1.35fr;gap:22px;padding:22px 0;border-bottom:1px solid var(--line)}
+.fracture .n{font-family:var(--mono);font-size:12px;color:var(--copper);padding-top:5px}
+.fracture h3{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.3}
+.fracture p{font-size:14.5px;color:var(--ink-dim);line-height:1.65}
+.thesis{margin-top:56px;padding:34px 38px;border:1px solid var(--line);border-left:3px solid var(--em);border-radius:0 var(--r) var(--r) 0;background:var(--wash)}
+.thesis p{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.6vw,26px);line-height:1.5;max-width:34ch;color:var(--ink)}
+
+/* roles */
+.roles{margin-top:46px;display:grid;gap:14px}
+.role{display:grid;grid-template-columns:56px 260px 1fr;gap:22px;align-items:start;border:1px solid var(--line);border-radius:var(--r);padding:22px 26px;background:linear-gradient(180deg,rgba(237,243,240,.025),rgba(237,243,240,0))}
+.role .n{font-family:var(--mono);font-size:12px;color:var(--em);padding-top:4px}
+.role h3{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.35}
+.role p{font-size:14.5px;color:var(--ink-dim);line-height:1.65}
+
+/* services strip */
+.svc-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:46px}
+.svc-col{border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;background:var(--bg-2)}
+.svc-col h3{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--em);margin-bottom:12px}
+.svc-col ul{list-style:none}
+.svc-col li{font-size:14px;color:var(--ink-dim);padding:7px 0 7px 20px;border-top:1px solid var(--line-soft);position:relative;line-height:1.5}
+.svc-col li::before{content:"";position:absolute;left:2px;top:15px;width:8px;height:4px;border-left:1.6px solid var(--em);border-bottom:1.6px solid var(--em);transform:rotate(-45deg)}
+.svc-col li:first-child{border-top:none}
+
+/* odoo band */
+.band{border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--bg-3),var(--bg-2));padding:52px 54px;margin-top:64px;position:relative;overflow:hidden}
+.band h3{font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);font-weight:700;line-height:1.15;max-width:22ch;text-wrap:balance;margin:16px 0 16px}
+.band p{color:var(--ink-dim);max-width:58ch;font-size:16px;line-height:1.7}
+.band p b{color:var(--ink)}
+.band-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:44px;align-items:center}
+
+/* assumptions */
+.assume{margin-top:46px;counter-reset:asm;display:grid;grid-template-columns:1fr 1fr;gap:0 56px}
+.asm{counter-increment:asm;padding:24px 0 24px 64px;position:relative;border-bottom:1px solid var(--line)}
+.asm::before{content:"0" counter(asm);position:absolute;left:0;top:26px;font-family:var(--mono);font-size:13px;color:var(--em)}
+.asm h3{font-family:var(--serif);font-size:19.5px;font-weight:700;line-height:1.35;margin-bottom:7px}
+.asm p{font-size:14.5px;color:var(--ink-dim);line-height:1.65}
+
+/* proof */
+.proofs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+.proof{border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(237,243,240,.03),rgba(237,243,240,0))}
+.proof .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:16px}
+.proof .big{font-family:var(--serif);font-size:40px;line-height:1;color:var(--em);font-variant-numeric:tabular-nums}
+.proof .big span{font-size:20px}
+.proof h3{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.35;margin:14px 0 8px}
+.proof p{font-size:14px;color:var(--ink-dim);line-height:1.65}
+.proof .foot{margin-top:auto;padding-top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--copper)}
+.disclose{margin-top:18px;font-size:13px;color:var(--ink-mute);max-width:74ch;line-height:1.6}
+
+/* process */
+.steps{margin-top:46px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.step{border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;background:var(--bg-2)}
+.step .n{font-family:var(--mono);font-size:11px;color:var(--em)}
+.step h3{font-family:var(--serif);font-size:17.5px;font-weight:700;margin:9px 0 7px;line-height:1.3}
+.step p{font-size:13px;color:var(--ink-dim);line-height:1.6}
+
+/* faq */
+.faq{margin-top:44px;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:18px;padding:22px 4px;font-family:var(--serif);font-size:19px;font-weight:700;line-height:1.4}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .tw{margin-left:auto;color:var(--em);font-family:var(--mono);font-size:18px;flex:none;transition:transform .2s}
+.faq details[open] summary .tw{transform:rotate(45deg)}
+.faq .a{padding:0 4px 24px;color:var(--ink-dim);font-size:15px;max-width:70ch;line-height:1.7}
+.faq .a b{color:var(--ink)}
+
+/* cta + footer */
+.final{padding:120px 0;text-align:left}
+.final h2{font-family:var(--serif);font-size:clamp(34px,5vw,58px);max-width:18ch}
+.footer{border-top:1px solid var(--line-soft);padding:44px 0 40px;background:var(--bg-2)}
+.footer .cols{display:flex;flex-wrap:wrap;gap:34px;justify-content:space-between;align-items:flex-start}
+.footer .fb{font-family:var(--serif);font-size:21px}
+.footer p{font-size:13.5px;color:var(--ink-mute);max-width:44ch;margin-top:8px;line-height:1.7}
+.footer .legal{margin-top:30px;padding-top:20px;border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute)}
+figure.dfig{margin:0;overflow-x:auto}
+figure.dfig svg{display:block;margin:0 auto}
+figure.dfig figcaption{margin-top:14px;font-size:13px;color:var(--ink-mute);line-height:1.6}
+
+/* responsive */
+@media (max-width:1000px){
+  .nav-links a.nl{display:none}
+  .two,.band-grid{grid-template-columns:1fr;gap:34px}
+  .cards,.svc-cols,.proofs{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr;}
+  .assume{grid-template-columns:1fr}
+  .fracture{grid-template-columns:52px 1fr;grid-template-rows:auto auto}
+  .fracture p{grid-column:2}
+  .role{grid-template-columns:44px 1fr;grid-template-rows:auto auto}
+  .role p{grid-column:2}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding:0 18px}
+  .hero{padding:130px 0 70px}
+  .sec{padding:72px 0}
+  .cards,.svc-cols,.proofs,.steps{grid-template-columns:1fr}
+  .band{padding:32px 24px}
+  .thesis{padding:24px 22px}
+  .hero-proof{gap:18px}
+  .final{padding:84px 0}
+}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="AITechNext home">
+      <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="27" height="27" rx="7" fill="none" stroke="#31C08E" stroke-width="2"/>
+        <circle cx="10" cy="19.5" r="2.6" fill="#31C08E"/>
+        <circle cx="15" cy="10.5" r="2.6" fill="#EEF4F1"/>
+        <circle cx="20" cy="19.5" r="2.6" fill="#31C08E"/>
+        <path d="M11 17.5 14 12.5M16 12.5 19 17.5" fill="none" stroke="#EEF4F1" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span>AI<b>TechNext</b></span>
+    </a>
+    <div class="nav-links">
+      <a class="nl" href="#problem">The problem</a>
+      <a class="nl" href="#partner">How we work</a>
+      <a class="nl" href="#services">Services</a>
+      <a class="nl" href="#odoo">AI × Odoo</a>
+      <a class="nl" href="#proof">Proof</a>
+      <a class="cta" href="mailto:sky@technext.asia?subject=AITechNext%20discovery%20call">Start a conversation</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <canvas id="mesh" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <span class="eyebrow">AI consultancy &amp; engineering · a TechNext company</span>
+    <h1>We help companies become <em>AI-native.</em></h1>
+    <p class="lede">AITechNext works alongside leadership teams to <b>define the strategy</b>, <b>build the systems</b>, and <b>develop the internal capability</b> required to apply AI across the business — engineered into the ERP and channels where your work actually happens, not bolted on beside them.</p>
+    <div class="hero-ctas">
+      <a class="cta big" href="mailto:sky@technext.asia?subject=AITechNext%20discovery%20call">Book a discovery call</a>
+      <a class="cta ghost big" href="#services">Explore the services</a>
+    </div>
+    <div class="hero-proof">
+      <div class="hp"><b>Strategy → run</b>advisory to managed ops,<br>one accountable partner</div>
+      <div class="hp"><b>Odoo-deep</b>born from an ERP<br>implementation firm</div>
+      <div class="hp"><b>SME-shaped</b>priced and paced for<br>10–500-person companies</div>
+      <div class="hp"><b>Measured</b>every engagement:<br>baseline → target → proven</div>
+    </div>
+  </div>
+</header>
+
+<section class="sec" id="problem">
+  <div class="wrap">
+    <span class="eyebrow">The problem</span>
+    <h2>Most companies don't <em>have</em> an AI strategy.</h2>
+    <p class="lede">They have scattered tools, isolated experiments, and a handful of people trying to figure it out on their own. It looks like progress from a distance. Up close, it's six fractures — and they compound.</p>
+
+    <div class="fractures">
+      <div class="fracture"><span class="n">/01</span><h3>Leadership isn't aligned</h3><p>There's no shared answer to where AI belongs in the business — so every initiative is a side project, funded by enthusiasm and cancelled by the next quarter's noise.</p></div>
+      <div class="fracture"><span class="n">/02</span><h3>Teams use AI inconsistently</h3><p>One person drafts everything with it, the next won't touch it. Quality, tone, and data handling vary desk by desk — there's no floor, and nothing compounds.</p></div>
+      <div class="fracture"><span class="n">/03</span><h3>Tools bought without a shared architecture</h3><p>A chatbot here, a transcriber there, a copywriting seat nobody remembers buying. None of them share context; none of them touch the systems where work is finished.</p></div>
+      <div class="fracture"><span class="n">/04</span><h3>Company knowledge stays trapped</h3><p>The knowledge that actually matters lives in inboxes, chat threads, folders, and people's heads. The AI your team uses can't see any of it — so its output stays generic.</p></div>
+      <div class="fracture"><span class="n">/05</span><h3>Pilots never become infrastructure</h3><p>The demo impresses. The pilot runs for a month. Then it quietly dies — no owner, no monitoring, no integration, no budget line. Nothing becomes part of how the business really runs.</p></div>
+      <div class="fracture"><span class="n">/06</span><h3>Projects built without a roadmap</h3><p>The one-off builds that do ship stand alone — disconnected from each other and from any larger plan, un-extendable, already turning into next year's legacy debt.</p></div>
+    </div>
+
+    <div class="thesis">
+      <p>The problem isn't access to AI. It's knowing what to build, how it should fit together, and how the organization needs to change around it.</p>
+    </div>
+
+    <figure class="dfig" style="margin-top:56px">
+      <svg viewBox="0 0 960 300" role="img" aria-label="Before and after comparison: on the left, scattered disconnected AI tools around an untouched ERP; on the right, an integrated system where knowledge, agents, and channels connect through the ERP as one architecture.">
+        <defs><marker id="arC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7D948C"/></marker></defs>
+        <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#AFC4BC">
+          <!-- before -->
+          <text x="215" y="30" text-anchor="middle" fill="#E08148" letter-spacing="2">TODAY — SCATTERED</text>
+          <g stroke="#E08148" fill="none" stroke-width="1.3">
+            <circle cx="90" cy="90" r="26"/><circle cx="215" cy="70" r="26"/><circle cx="340" cy="95" r="26"/>
+            <circle cx="120" cy="200" r="26"/><circle cx="320" cy="205" r="26"/>
+          </g>
+          <text x="90" y="94" text-anchor="middle" font-size="9.5">chatbot</text>
+          <text x="215" y="74" text-anchor="middle" font-size="9.5">writer</text>
+          <text x="340" y="99" text-anchor="middle" font-size="9.5">notetaker</text>
+          <text x="120" y="204" text-anchor="middle" font-size="9.5">pilot #3</text>
+          <text x="320" y="209" text-anchor="middle" font-size="9.5">spreadsheet</text>
+          <rect x="165" y="235" width="100" height="34" rx="7" fill="none" stroke="#7D948C" stroke-width="1.3" stroke-dasharray="4 4"/>
+          <text x="215" y="256" text-anchor="middle" font-size="10">ERP (untouched)</text>
+          <!-- divider arrow -->
+          <path d="M435 150h84" stroke="#7D948C" stroke-width="1.5" marker-end="url(#arC)"/>
+          <text x="477" y="136" text-anchor="middle" fill="#7D948C" font-size="10">the work</text>
+          <!-- after -->
+          <text x="745" y="30" text-anchor="middle" fill="#31C08E" letter-spacing="2">AI-NATIVE — ONE SYSTEM</text>
+          <g stroke="#31C08E" stroke-width="1.4" fill="none">
+            <rect x="670" y="228" width="150" height="40" rx="8"/>
+            <rect x="682" y="158" width="126" height="36" rx="8"/>
+            <rect x="682" y="88" width="126" height="36" rx="8"/>
+            <circle cx="600" cy="60" r="20"/><circle cx="745" cy="42" r="20"/><circle cx="890" cy="60" r="20"/>
+            <path d="M745 88V62M700 92l-84-18M790 92l84-18M745 158v-34M745 228v-34"/>
+          </g>
+          <text x="600" y="64" text-anchor="middle" font-size="9.5">chat</text>
+          <text x="745" y="46" text-anchor="middle" font-size="9.5">email</text>
+          <text x="890" y="64" text-anchor="middle" font-size="9.5">voice</text>
+          <text x="745" y="110" text-anchor="middle" font-size="10.5" fill="#EEF4F1">agents</text>
+          <text x="745" y="180" text-anchor="middle" font-size="10.5" fill="#EEF4F1">knowledge</text>
+          <text x="745" y="252" text-anchor="middle" font-size="10.5" fill="#EEF4F1">ERP — system of record</text>
+        </g>
+      </svg>
+      <figcaption>The difference isn't more tools — it's architecture. In the AI-native company, every channel, agent, and answer runs through one connected system, so each addition makes the whole thing smarter.</figcaption>
+    </figure>
+  </div>
+</section>
+<section class="sec alt" id="partner">
+  <div class="wrap">
+    <span class="eyebrow">How we work</span>
+    <h2>Your AI partner for the <em>AI era.</em></h2>
+    <p class="lede">Part consulting firm, part engineering lab — one accountable partner across the full arc of becoming AI-native. Five roles, one team, no handoffs between vendors.</p>
+
+    <div class="roles">
+      <div class="role"><span class="n">R/1</span><h3>Strategic advisor to leadership</h3><p>In the room where direction gets set — translating what AI can actually do into decisions your business can act on: what to build, what to buy, what to ignore, and in what order.</p></div>
+      <div class="role"><span class="n">R/2</span><h3>Design partner to operators</h3><p>Side by side with the people who run your workflows, mapping how work happens today — because the best automation designs come from the person who's done the job for nine years.</p></div>
+      <div class="role"><span class="n">R/3</span><h3>Engineering team for custom systems</h3><p>Production AI shipped inside your stack — spec-driven, evaluated, monitored, and owned by you. Your repos, your data, your infrastructure. No black boxes, no hostage architecture.</p></div>
+      <div class="role"><span class="n">R/4</span><h3>Enablement partner to your champions</h3><p>We train the internal experts who carry it forward — so capability compounds inside your company after we step back, instead of leaving with the consultants.</p></div>
+      <div class="role"><span class="n">R/5</span><h3>Long-term guide as everything shifts</h3><p>Models change monthly; your priorities change quarterly. We stay in — running, measuring, and upgrading the systems as the ground moves underneath them.</p></div>
+    </div>
+
+    <figure class="dfig" style="margin-top:60px">
+      <svg viewBox="0 0 960 190" role="img" aria-label="The engagement arc: Assess in weeks 0 to 2, Prove in weeks 2 to 6, Systematize in months 2 to 6, Compound ongoing — each phase feeding the next.">
+        <defs><marker id="arD" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7D948C"/></marker></defs>
+        <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#AFC4BC">
+          <g>
+            <rect x="20" y="40" width="200" height="86" rx="10" fill="rgba(49,192,142,.09)" stroke="#31C08E" stroke-width="1.4"/>
+            <text x="120" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#EEF4F1">Assess</text>
+            <text x="120" y="92" text-anchor="middle">baseline + roadmap</text>
+            <text x="120" y="110" text-anchor="middle" fill="#7D948C">wk 0–2</text>
+          </g>
+          <g>
+            <rect x="262" y="40" width="200" height="86" rx="10" fill="none" stroke="rgba(237,243,240,.25)" stroke-width="1.3"/>
+            <text x="362" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#EEF4F1">Prove</text>
+            <text x="362" y="92" text-anchor="middle">first system live</text>
+            <text x="362" y="110" text-anchor="middle" fill="#7D948C">wk 2–6</text>
+          </g>
+          <g>
+            <rect x="504" y="40" width="200" height="86" rx="10" fill="none" stroke="rgba(237,243,240,.25)" stroke-width="1.3"/>
+            <text x="604" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#EEF4F1">Systematize</text>
+            <text x="604" y="92" text-anchor="middle">department end-to-end</text>
+            <text x="604" y="110" text-anchor="middle" fill="#7D948C">mo 2–6</text>
+          </g>
+          <g>
+            <rect x="746" y="40" width="194" height="86" rx="10" fill="none" stroke="#31C08E" stroke-width="1.4" stroke-dasharray="5 4"/>
+            <text x="843" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#EEF4F1">Compound</text>
+            <text x="843" y="92" text-anchor="middle">run · train · expand</text>
+            <text x="843" y="110" text-anchor="middle" fill="#7D948C">ongoing</text>
+          </g>
+          <g stroke="#7D948C" stroke-width="1.4" fill="none">
+            <path d="M220 83h34" marker-end="url(#arD)"/>
+            <path d="M462 83h34" marker-end="url(#arD)"/>
+            <path d="M704 83h34" marker-end="url(#arD)"/>
+          </g>
+          <text x="480" y="168" text-anchor="middle" fill="#7D948C">every phase ends at a decision gate — you can stop at any of them and keep everything built</text>
+        </g>
+      </svg>
+      <figcaption>The arc, compressed: measurable inside 30 days, systemic inside two quarters, compounding from then on.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" id="services">
+  <div class="wrap">
+    <span class="eyebrow">What we build</span>
+    <h2>Every layer of the AI-native company.</h2>
+    <p class="lede">Seventeen service lines spanning strategy, engineering, governance, and operations — sold as focused engagements that each pay back on their own, and connect into one architecture.</p>
+
+    <div class="svc-cols">
+      <div class="svc-col"><h3>Direction</h3><ul>
+        <li>AI strategy, roadmaps &amp; opportunity audits</li>
+        <li>Fractional Chief AI Officer</li>
+        <li>Build-vs-buy &amp; vendor selection</li>
+        <li>Data foundations &amp; single source of truth</li>
+        <li>Governance, risk &amp; PDPA-ready compliance</li>
+      </ul></div>
+      <div class="svc-col"><h3>Systems</h3><ul>
+        <li>AI agents &amp; workflow automation</li>
+        <li>Custom LLM apps, RAG &amp; company brains</li>
+        <li>Chat, WhatsApp &amp; voice assistants</li>
+        <li>Document intelligence &amp; back-office pipelines</li>
+        <li>Forecasting, scoring &amp; computer vision</li>
+        <li>ERP/CRM integration — Odoo-deep</li>
+      </ul></div>
+      <div class="svc-col"><h3>Momentum</h3><ul>
+        <li>Managed AI operations &amp; care plans</li>
+        <li>MLOps, observability &amp; cost control</li>
+        <li>Team training &amp; AI champions programs</li>
+        <li>Vertical solution packs for your industry</li>
+        <li>Sales &amp; marketing revenue engines</li>
+      </ul></div>
+    </div>
+
+    <div class="band" id="odoo">
+      <div class="band-grid">
+        <div>
+          <span class="eyebrow">Flagship · AI × Odoo</span>
+          <h3>Your ERP just became your AI advantage.</h3>
+          <p>AITechNext was born inside an Odoo implementation firm. That means your AI doesn't start from a blank page — it starts from the system that already holds your <b>customers, orders, stock, invoices, and people</b>. Agents that draft quotes from real price lists. Collections that chase with full payment context. Support that answers from live order status. Every automation lands in the software your team already opens every morning — with human approval queues built in.</p>
+          <p style="margin-top:14px"><b>Not on Odoo?</b> We meet you on your current stack — HubSpot, SAP B1, spreadsheets — and if an ERP move ever makes sense, we're the rare AI partner who can carry you through that too.</p>
+        </div>
+        <figure class="dfig">
+          <svg viewBox="0 0 300 290" role="img" aria-label="Stack: channels feed agents, agents read knowledge, all act on Odoo as the system of record.">
+            <g font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#AFC4BC">
+              <rect x="20" y="16" width="260" height="44" rx="9" fill="none" stroke="rgba(237,243,240,.25)" stroke-width="1.2"/>
+              <text x="150" y="42" text-anchor="middle" fill="#EEF4F1">chat · email · voice · portals</text>
+              <rect x="20" y="78" width="260" height="44" rx="9" fill="rgba(49,192,142,.1)" stroke="#31C08E" stroke-width="1.4"/>
+              <text x="150" y="104" text-anchor="middle" fill="#EEF4F1">AI agents + approvals</text>
+              <rect x="20" y="140" width="260" height="44" rx="9" fill="none" stroke="rgba(237,243,240,.25)" stroke-width="1.2"/>
+              <text x="150" y="166" text-anchor="middle" fill="#EEF4F1">company knowledge</text>
+              <rect x="20" y="202" width="260" height="54" rx="9" fill="#31C08E"/>
+              <text x="150" y="226" text-anchor="middle" fill="#06231A" font-weight="bold">ODOO</text>
+              <text x="150" y="243" text-anchor="middle" fill="#06231A">system of record</text>
+              <g stroke="#7D948C" stroke-width="1.2"><path d="M150 60v18M150 122v18M150 184v18"/></g>
+              <text x="150" y="280" text-anchor="middle" fill="#7D948C">one backbone, every layer</text>
+            </g>
+          </svg>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="sec alt" id="experts">
+  <div class="wrap">
+    <span class="eyebrow">Who you get</span>
+    <h2>Expert AI consultants <em>and</em> engineers.</h2>
+    <p class="lede">Our experience comes from building, deploying, breaking, and improving real systems inside real companies — years of ERP implementations across Southeast Asia, now fused with a frontier AI engineering bench. We know what survives production, because production is where we live.</p>
+
+    <div class="assume">
+      <div class="asm"><h3>AI strategy starts with the business, not the model.</h3><p>We begin in your P&amp;L and your workflows — the model is chosen last, and it's the easiest part to change.</p></div>
+      <div class="asm"><h3>The model layer keeps getting more interchangeable.</h3><p>So we architect for swap-ability: when a better or cheaper model ships, you benefit in days, not migrations.</p></div>
+      <div class="asm"><h3>Context, workflows, and knowledge are the durable advantage.</h3><p>Anyone can call the same APIs. Nobody else has your data, your process, your customers — that's the moat we build on.</p></div>
+      <div class="asm"><h3>Humans and agents should work from the same source of truth.</h3><p>One system of record, shared by people and AI alike — not a parallel universe of tools that drift apart.</p></div>
+      <div class="asm"><h3>AI capability gets built inside the org.</h3><p>We train your champions and hand over the keys. Dependence on us should be a choice you keep making, never a trap.</p></div>
+      <div class="asm"><h3>Governance belongs in the system, not in a policy document.</h3><p>Approvals, audit trails, and privacy controls ship inside every build — enforced by architecture, not by memo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="proof">
+  <div class="wrap">
+    <span class="eyebrow">Proof, not promises</span>
+    <h2>Every engagement is built to <em>prove itself.</em></h2>
+    <p class="lede">We instrument before we build: baseline measured, target agreed, results tracked in your own systems — so the numbers that justify the work are <b>yours</b>, not our marketing's. Here's what that looks like in the engagements we run.</p>
+
+    <div class="proofs">
+      <div class="proof">
+        <div class="k">Blueprint · Support &amp; service</div>
+        <div class="big">70<span>–90%</span></div>
+        <h3>of routine tickets, resolved without a human.</h3>
+        <p>Grounded support agents on web and WhatsApp, wired to live order data, with confidence thresholds and warm human handoff. Support shifts from cost line to retention engine.</p>
+        <div class="foot">target range we engineer toward</div>
+      </div>
+      <div class="proof">
+        <div class="k">Blueprint · Sales response</div>
+        <div class="big">&lt;60<span>s</span></div>
+        <h3>from enquiry to qualified, personal response.</h3>
+        <p>Speed-to-lead agents that answer, qualify, and book meetings around the clock — because the fastest responder wins deals SMEs never knew they were losing.</p>
+        <div class="foot">target we deploy against, 24/7</div>
+      </div>
+      <div class="proof">
+        <div class="k">Blueprint · Back office</div>
+        <div class="big">60<span>+ hrs</span></div>
+        <h3>of monthly admin, absorbed by document pipelines.</h3>
+        <p>Invoices, POs, and delivery orders captured, validated, and posted into the ERP with exception queues — the quiet automation with the loudest payroll impact.</p>
+        <div class="foot">typical scope of a first deployment</div>
+      </div>
+    </div>
+    <p class="disclose">These are engineering blueprints — the repeatable systems we deploy and the target bands we scope them against, not client claims. As a new firm built on TechNext's ERP delivery track record, we publish measured case studies here as each engagement completes its first quarter — with the client's numbers and the client's sign-off.</p>
+  </div>
+</section>
+
+<section class="sec alt" id="process">
+  <div class="wrap">
+    <span class="eyebrow">The path</span>
+    <h2>From first call to compounding system.</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><h3>Discovery call</h3><p>45 minutes with a consultant-engineer, not a salesperson. We map your bottlenecks and tell you honestly what's worth automating — and what isn't.</p></div>
+      <div class="step"><span class="n">02</span><h3>Assessment</h3><p>A short paid engagement: baselines measured, opportunities ranked, roadmap written. Useful even if you never hire us again.</p></div>
+      <div class="step"><span class="n">03</span><h3>First build</h3><p>One high-ROI system live in production within 30 days — real work, real data, approval queues on.</p></div>
+      <div class="step"><span class="n">04</span><h3>Systematize</h3><p>A department end-to-end: agents, knowledge, integrations, and your team trained on all of it.</p></div>
+      <div class="step"><span class="n">05</span><h3>Run &amp; expand</h3><p>Care plans and managed operations keep it improving monthly; quarterly reviews decide what's next.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap">
+    <span class="eyebrow">Questions owners ask</span>
+    <h2>Straight answers.</h2>
+    <div class="faq">
+      <details>
+        <summary>We're not technical. Can we still do this? <span class="tw">+</span></summary>
+        <div class="a">Yes — that's our core client. You bring knowledge of your business; we bring everything else, and we train your team as we go. Most of our deployments are approved and operated day-to-day by non-technical staff through simple approval queues.</div>
+      </details>
+      <details>
+        <summary>How fast do we see results? <span class="tw">+</span></summary>
+        <div class="a"><b>First live system inside 30 days</b> — that's a design rule of ours, not a stretch goal. We deliberately sequence the fastest-payback automation first, measured against the baseline we captured in week zero.</div>
+      </details>
+      <details>
+        <summary>What does it cost? <span class="tw">+</span></summary>
+        <div class="a">Entry engagements run in the low thousands (USD); a serious first implementation is typically five figures; ongoing operation is a predictable monthly plan. Every proposal shows the payback math on page one — if we can't show payback, we won't propose the work.</div>
+      </details>
+      <details>
+        <summary>Is our data safe? Will it train someone else's model? <span class="tw">+</span></summary>
+        <div class="a">Your data stays yours: processed in-region by default, never used to train shared models, covered by data-processing agreements, with access controls and audit logs built into every system. We align with Singapore's Model AI Governance Framework and PDPA requirements as standard.</div>
+      </details>
+      <details>
+        <summary>What if AI gets it wrong? <span class="tw">+</span></summary>
+        <div class="a">Every automation starts in draft-and-approve mode — a human clears its work until measured accuracy earns more autonomy, at thresholds you control. Plus audit trails, confidence limits, and a kill switch on everything. Trust is dialled up gradually, never assumed.</div>
+      </details>
+      <details>
+        <summary>Do we have to use Odoo? <span class="tw">+</span></summary>
+        <div class="a">No. Odoo is our first choice for SMEs — and where we're deepest — but we build on whatever system of record you run today. If your current stack is the bottleneck, we'll say so plainly and show you the options, including ones that don't involve us.</div>
+      </details>
+      <details>
+        <summary>What happens if we stop working with you? <span class="tw">+</span></summary>
+        <div class="a">You keep everything: the code lives in your repositories, automations run on your infrastructure, credentials sit in your vault, and documentation is a contractual deliverable. We want clients who stay because it works — not because leaving is painful.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <div class="wrap">
+    <span class="eyebrow">Next step</span>
+    <h2>Bring one bottleneck. <em>Leave with a plan.</em></h2>
+    <p class="lede" style="margin-top:18px">A 45-minute discovery call with a consultant-engineer. We'll map the workflow, size the opportunity honestly, and tell you exactly what we'd build first — whether or not you build it with us.</p>
+    <div class="hero-ctas">
+      <a class="cta big" href="mailto:sky@technext.asia?subject=AITechNext%20discovery%20call&amp;body=Hi%20AITechNext%20—%20our%20biggest%20operational%20bottleneck%20right%20now%20is%3A%20">Book the discovery call</a>
+      <a class="cta ghost big" href="https://technext.asia">About our parent company →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="fb">AI<b>TechNext</b></div>
+        <p>AI consultancy &amp; implementation for SMEs — strategy, systems, and capability, engineered on the Odoo backbone. A TechNext company, Southeast Asia.</p>
+      </div>
+      <div>
+        <p style="max-width:none">
+          <a href="#problem">The problem</a> · <a href="#partner">How we work</a> · <a href="#services">Services</a> · <a href="#odoo">AI × Odoo</a> · <a href="#proof">Proof</a> · <a href="#faq">FAQ</a><br>
+          <a href="mailto:sky@technext.asia">sky@technext.asia</a> · <a href="https://technext.asia">technext.asia</a>
+        </p>
+      </div>
+    </div>
+    <div class="legal">© 2026 AITechNext · A TechNext company · Preview build</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var c=document.getElementById("mesh");
+  if(!c||!c.getContext)return;
+  var ctx=c.getContext("2d");
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=0,H=0,pts=[];
+  function resize(){
+    var r=c.parentElement.getBoundingClientRect();
+    W=r.width;H=r.height;
+    c.width=W*dpr;c.height=H*dpr;
+    c.style.width=W+"px";c.style.height=H+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var n=Math.max(26,Math.min(64,Math.floor(W/26)));
+    pts=[];
+    for(var i=0;i<n;i++){
+      pts.push({x:Math.random()*W,y:Math.random()*H,
+        vx:(Math.random()-.5)*.16,vy:(Math.random()-.5)*.16,
+        r:Math.random()*1.7+.9});
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var L=120;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      for(var j=i+1;j<pts.length;j++){
+        var q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<L){
+          ctx.strokeStyle="rgba(49,192,142,"+(0.15*(1-d/L)).toFixed(3)+")";
+          ctx.lineWidth=1;
+          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();
+        }
+      }
+    }
+    for(var k=0;k<pts.length;k++){
+      var s=pts[k];
+      ctx.fillStyle="rgba(49,192,142,.5)";
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.2832);ctx.fill();
+    }
+  }
+  function tick(){
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
+      if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+    }
+    draw();
+    requestAnimationFrame(tick);
+  }
+  resize();
+  window.addEventListener("resize",resize);
+  if(reduce){draw();}else{requestAnimationFrame(tick);}
+})();
+</script>
+</body>
+</html>
